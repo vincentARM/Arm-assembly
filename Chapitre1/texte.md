@@ -1,4 +1,4 @@
-Exemple de script de compilation : compil
+Exemple de script de compilation : <B>compil</B>
 
 Premier programme avec la fonction du C printf : hello2.s
 
