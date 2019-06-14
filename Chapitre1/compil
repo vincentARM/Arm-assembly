@@ -1,0 +1,7 @@
+#compilation assembleur ARM raspberry pi
+#lancement par compil nomdusource
+echo "Compilation de "$1".s"
+as -o $1".o"   $1".s" -a >$1".txt"
+ld -o $1 $1".o"  -e main
+ls -l $1*
+echo "Fin de compilation."
