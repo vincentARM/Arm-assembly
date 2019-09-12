@@ -1,0 +1,525 @@
+ARM GAS  src/saisie2.s 			page 1
+
+
+   1              	/* programme : saisie au clavier dans console  */
+   2              	/* Assembleur ARM Raspberry  */
+   3              	/*********************************************/
+   4              	/*constantes */
+   5              	/********************************************/
+   6              	.include "src/constantesARM.inc"
+   1              	/*constantes */
+   2              	.equ EXIT, 1
+   3              	.equ READ, 3
+   4              	.equ WRITE, 4
+   5              	.equ OPEN, 5
+   6              	.equ CLOSE, 6
+   7              	.equ PIPE, 42
+   8              	.equ IOCTL, 0x36
+   9              	
+  10              	/* console */
+  11              	.equ STDIN,  0
+  12              	.equ STDOUT, 1
+  13              	.equ STDERR, 2  
+  14              	
+  15              	/*  fichier */
+  16              	.equ O_RDONLY,  0
+  17              	.equ O_WRONLY, 0x0001    
+  18              	.equ O_RDWR,	0x0002		/* open for reading and writing */
+  19              	
+  20              	.equ O_CREAT,		0x0200		/* create if nonexistant */
+  21              	.equ O_TRUNC,	0x0400		/* truncate to zero length */
+  22              	.equ O_EXCL,		0x0800		/* error if already exists */
+  23              	.equ O_SYNC,      04010000
+  24              	
+  25              	.equ S_IRWXU,  0x00700   /* user (file owner) has read, write, and execute permission */
+  26              	
+  27              	.equ  PROT_READ,	0x1     /* Page can be read.  */
+  28              	.equ PROT_WRITE,	0x2     /* Page can be written.  */
+  29              	.equ PROT_EXEC,	0x4     /* Page can be executed.  */
+  30              	.equ PROT_NONE,	0x0     /* Page can not be accessed.  */
+  31              	
+  32              	.equ MAP_SHARED,	0x01    /* Share changes.  */
+  33              	.equ MAP_PRIVATE,	0x02    /* Changes are private.  */
+  34              	
+  35              	.equ MAP_FIXED,	0x10    /* Interpret addr exactly.  */
+  36              	.equ MAP_FILE,	0
+  37              	.equ MAP_ANONYMOUS,	0x20    /* Don't use a file.  */
+  38              	.equ MAP_ANON,	MAP_ANONYMOUS
+  39              	
+  40              	.equ MAP_DENYWRITE,	0x0800  /* ETXTBSY */
+  41              	.equ MAP_FOOBAR,	0x0800  /* ETXTBSY */
+  42              	
+  43              	.equ MS_ASYNC,	1		/* sync memory asynchronously */
+  44              	.equ MS_SYNC,		2		/* synchronous memory sync */
+  45              	.equ MS_INVALIDATE,	4		/* invalidate the caches */
+  46              	
+  47              	
+  48              	//.equ FBIOGET_FSCREENINFO, 0x4602
+  49              	/* Constantes g√©n√©rales */
+  50              	.equ false, 0
+  51              	.equ true,  1
+ARM GAS  src/saisie2.s 			page 2
+
+
+  52              	
+  53              	/* constantes X11 */
+  54              	.equ KeyPressed,  2
+  55              	.equ ButtonPress, 4  
+  56              	.equ MotionNotify,	6
+  57              	.equ EnterNotify, 7
+  58              	.equ LeaveNotify,  8
+  59              	.equ Expose,   12  
+  60              	.equ ClientMessage,    33      
+  61              	.equ KeyPressMask, 1
+  62              	.equ ButtonPressMask, 4
+  63              	.equ ButtonReleaseMask, 8
+  64              	.equ ExposureMask, 1<<15
+  65              	.equ StructureNotifyMask, 1<<17
+  66              	.equ EnterWindowMask, 1<<4
+  67              	.equ LeaveWindowMask, 1<<5 
+  68              	.equ ConfigureNotify, 22
+  69              	
+  70              	
+  71              	.equ GCForeground,	1<<2
+  72              	.equ GCBackground, 1<<3
+  73              	.equ GCLine_width, 1<<4
+  74              	.equ GCLine_style, 1<<5
+  75              	.equ GCFont,	1<<14
+  76              	
+  77              	.equ CWBackPixel,	1<<1
+  78              	.equ CWBorderPixel,	1<<3
+  79              	.equ CWEventMask,	1<<11
+  80              	.equ CWX,			1<<0
+  81              	.equ CWY, 			(1<<1)
+  82              	.equ CWWidth, 		1<<2
+  83              	.equ CWHeight, 		1<<3
+  84              	.equ CWBorderWidth, 1<<4
+  85              	.equ CWSibling, 	1<<5
+  86              	.equ CWStackMode, 		1<<6
+  87              	
+  88              	
+  89              	.equ InputOutput,	1
+  90              	.equ InputOnly,	2
+  91              	
+  92              	.equ InputHint,	1 << 0
+  93              	.equ StateHint,	1 << 1
+  94              	.equ IconPixmapHint,	1<< 2
+  95              	.equ IconWindowHint,	1 << 3
+  96              	.equ IconPositionHint,	1<< 4
+  97              	.equ IconMaskHint,	1<< 5
+  98              	.equ WindowGroupHint,	1<< 6
+  99              	.equ UrgencyHint,	1 << 8
+ 100              	.equ WithdrawnState,	0
+ 101              	.equ NormalState,	1	/* most applications start this way */
+ 102              	.equ IconicState,	3	/* application wants to start as an icon */
+ 103              	
+ 104              	.equ USPosition,	1 << 0	/* user specified x, y */
+ 105              	.equ USSize,		1 << 1	/* user specified width, height */
+ 106              	.equ PPosition,	1 << 2	/* program specified position */
+ 107              	.equ PSize,		(1 << 3)	/* program specified size */
+ 108              	.equ PMinSize,	(1 << 4)	/* program specified minimum size */
+ARM GAS  src/saisie2.s 			page 3
+
+
+ 109              	.equ PMaxSize,	(1 << 5)	/* program specified maximum size */
+ 110              	.equ PResizeInc,	(1 << 6)	/* program specified resize increments */
+ 111              	.equ PAspect,		(1 << 7)	/* program specified min and max aspect ratios */
+ 112              	.equ PBaseSize,	(1 << 8)
+ 113              	.equ PWinGravity,	(1 << 9)
+ 114              	
+ 115              	.equ Button1MotionMask, 1<<8
+ 116              	.equ Button2MotionMask,  1<<9 
+ 117              	.equ ButtonMotionMask,	(1<<13)
+ 118              	
+ 119              	.equ CoordModeOrigin,	0
+ 120              	.equ CoordModePrevious,	1
+ 121              	
+ 122              	.equ XYPixmap,	1
+ 123              	.equ ZPixmap,	2
+ 124              	
+ 125              	
+ 126              	.equ Complex,			0
+ 127              	.equ Nonconvex,			1
+ 128              	.equ Convex,			2
+ 129              	
+ 130              	/*
+ 131              	#define KeyPress                2
+ 132              	#define KeyRelease              3
+ 133              	#define ButtonPress             4
+ 134              	#define ButtonRelease           5
+ 135              	#define MotionNotify            6
+ 136              	#define EnterNotify             7
+ 137              	#define LeaveNotify             8
+ 138              	#define FocusIn                 9
+ 139              	#define FocusOut                10
+ 140              	#define KeymapNotify            11
+ 141              	#define Expose                  12
+ 142              	#define GraphicsExpose          13
+ 143              	#define NoExpose                14
+ 144              	#define VisibilityNotify        15
+ 145              	#define CreateNotify            16
+ 146              	#define DestroyNotify           17
+ 147              	#define UnmapNotify             18
+ 148              	#define MapNotify               19
+ 149              	#define MapRequest              20
+ 150              	#define ReparentNotify          21
+ 151              	#define ConfigureNotify         22
+ 152              	#define ConfigureRequest        23
+ 153              	#define GravityNotify           24
+ 154              	#define ResizeRequest           25
+ 155              	#define CirculateNotify         26
+ 156              	#define CirculateRequest        27
+ 157              	#define PropertyNotify          28
+ 158              	#define SelectionClear          29
+ 159              	#define SelectionRequest        30
+ 160              	#define SelectionNotify         31
+ 161              	#define ColormapNotify          32
+ 162              	#define ClientMessage           33
+ 163              	#define MappingNotify           34
+ 164              	#define GenericEvent            35
+ 165              	*/
+ARM GAS  src/saisie2.s 			page 4
+
+
+   7              	.equ TAILLEBUF,  100
+   8              	/*******************************************/
+   9              	/* Fichier des macros                       */
+  10              	/********************************************/
+  11              	.include "src/ficmacros.inc"
+   1              	/* Programme assembleur ARM Raspberry */
+   2              	/* Assembleur ARM Raspberry  : Vincent Leboulou */
+   3              	/* Blog : http://assembleurarmpi.blogspot.fr/  */
+   4              	/* modËle B 512MO   */
+   5              	/***************************************
+   6              	/* Fichier des macros                 */
+   7              	/**************************************/
+   8              	//.altmacro
+   9              	/* macro d'enrobage du vidage des registres  avec Ètiquette */
+  10              	.macro vidregtit str 
+  11              	    push {r12}    @ save r12
+  12              		mrs r12,cpsr  /* save du registre d'Ètat  dans r12 */
+  13              		push {r12}
+  14              		adr r12,lib1\@    @ utilisation de adr suite pb gros programme
+  15              		push {r12}    @ passage argument sur la pile
+  16              		ldr r12,[sp,#8]   @ on remet en etat r12 pour l'afficher correctement
+  17              		bl affregistres  @ affichage des registres
+  18              		pop {r12}
+  19              		msr cpsr,r12    /*restaur registre d'Ètat */
+  20              		pop {r12}         @ on restaure R12 pour avoir une pile rÈalignÈe
+  21              		b smacro1vidregtit\@   @ pour sauter le stockage de la chaine.	
+  22              	lib1\@:  .asciz "\str"
+  23              	.align 4
+  24              	smacro1vidregtit\@:	 
+  25              	.endm   @ fin de la macro
+  26              	//.noaltmacro
+  27              	/****************************************************/
+  28              	/* macro de vidage memoire                          */
+  29              	/****************************************************/
+  30              	/* ne vide que les adresses ou le registre r0       */
+  31              	.macro vidmemtit str, adr, nb 
+  32              	    push {r0,r1,r2,r12}    @ save registre
+  33              		mrs r12,cpsr  /* save du registre d'Ètat  dans r12 */
+  34              	    adr r2,lib1\@  @ recup libellÈ passÈ dans str
+  35              		.ifnc \adr,r0
+  36              		ldr r0,zon1\@
+  37              		.endif
+  38              		mov r1,#\nb  /* nombre de bloc a afficher */
+  39              		bl affmemoireTit
+  40              		msr cpsr,r12    /*restaur registre d'Ètat */
+  41              		pop {r0,r1,r2,r12}         @ on restaure R12 pour avoir une pile rÈalignÈe
+  42              		b smacro1vidregtit\@   @ pour sauter le stockage de la chaine.
+  43              	.ifnc \adr,r0
+  44              	zon1\@:  .int \adr
+  45              	.endif
+  46              	lib1\@:  .asciz "\str"
+  47              	.align 4
+  48              	smacro1vidregtit\@:	 
+  49              	.endm   @ fin de la macro
+  12              	/*******************************************/
+  13              	/* DONNEES INITIALISEES                    */
+  14              	/*******************************************/ 
+ARM GAS  src/saisie2.s 			page 5
+
+
+  15              	.data
+  16 0000 56657569 	szSaisie:       .asciz "Veuillez saisir un texte :\n"
+  16      6C6C657A 
+  16      20736169 
+  16      73697220 
+  16      756E2074 
+  17 001c 0A00     	szRetourligne:  .asciz "\n"
+  18 001e 45727265 	szMessErrAppel: .asciz "Erreur appel systeme. \n"
+  18      75722061 
+  18      7070656C 
+  18      20737973 
+  18      74656D65 
+  19              	/*************************************************/
+  20 0036 436F6465 	szMessErr:      .ascii    "Code erreur hexa : "
+  20      20657272 
+  20      65757220 
+  20      68657861 
+  20      203A20
+  21 0049 20202020 	sHexa:          .space 9,' '
+  21      20202020 
+  21      20
+  22 0052 202064C3 	                .ascii "  d√©cimal :  "
+  22      A963696D 
+  22      616C203A 
+  22      2020
+  23 0060 20202020 	sDeci:          .fill 14,1,' '
+  23      20202020 
+  23      20202020 
+  23      2020
+  24 006e 0A00     	                .asciz "\n"
+  25              	.equ LGMESSERR, . -  szMessErr  @ calcul de la longueur de la zone precedente
+  26              	/*******************************************/
+  27              	/* DONNEES  NON INITIALISEES               */
+  28              	/*******************************************/ 
+  29              	.bss
+  30 0000 00000000 	sBuffer:  .skip TAILLEBUF
+  30      00000000 
+  30      00000000 
+  30      00000000 
+  30      00000000 
+  31              	
+  32              	/**********************************************/
+  33              	/* -- Code section                            */
+  34              	/**********************************************/
+  35              	.text            
+  36              	.global main                @ 'main' point d'entr√©e doit √™tre  global
+  37              	
+  38              	main:                       @ programme principal
+  39 0000 00482DE9 	    push {fp,lr}            @ save des  2 registres
+  40 0004 08B08DE2 	    add fp,sp,#8            @ fp <- adresse d√©but
+  41 0008 04C02DE5 	    vidregtit debut
+  41      00C00FE1 
+  41      04C02DE5 
+  41      18C08FE2 
+  41      04C02DE5 
+  42 0040 A8009FE5 	    ldr r0, adresse_saisie  @ r0 ‚Üê adresse chaine
+  43 0044 FEFFFFEB 	    bl affichageMess        @ affichage message dans console
+ARM GAS  src/saisie2.s 			page 6
+
+
+  44 0048 0000A0E3 	    mov r0,#0
+  45 004c A0109FE5 	    ldr r1,adresse_buffer   @ adresse du buffer de saisie
+  46 0050 6420A0E3 	    mov r2,#TAILLEBUF       @ taille buffer
+  47              	    //mov r2,#10
+  48 0054 0370A0E3 	    mov r7, #READ           @ Appel system pour lecture saisie clavier
+  49 0058 000000EF 	    swi #0 
+  50 005c 000050E3 	    cmp r0,#0
+  51 0060 1C0000DA 	    ble 99f
+  52 0064 04C02DE5 	    vidregtit saisie     @ pour v√©rification
+  52      00C00FE1 
+  52      04C02DE5 
+  52      18C08FE2 
+  52      04C02DE5 
+  53 00a0 4C009FE5 	    ldr r0,adresse_buffer
+  54 00a4 07102DE9 	    vidmemtit saisie r0 5
+  54      00C00FE1 
+  54      10208FE2 
+  54      0510A0E3 
+  54      FEFFFFEB 
+  55 00d0 0000A0E3 	    mov r0,#0               @ code retour ok
+  56 00d4 020000EA 	    b 100f
+  57              	99:                         @ edition des erreurs
+  58 00d8 70109FE5 	   ldr r1,=szMessErrAppel
+  59 00dc 050000EB 	   bl   afficheerreur
+  60 00e0 0100A0E3 	   mov r0,#1                @ code retour erreur
+  61              	
+  62              	100:                        @ fin de programme standard
+  63 00e4 0048BDE8 	    pop {fp,lr}             @ restaur des  2 registres
+  64 00e8 0170A0E3 	    mov r7, #EXIT           @ request to exit program
+  65 00ec 000000EF 	    swi 0 
+  66              	/************************************/
+  67 00f0 00000000 	adresse_saisie : .word szSaisie
+  68 00f4 00000000 	adresse_buffer : .word sBuffer
+  69              	
+  70              	/***************************************************/
+  71              	/*   affichage message d'erreur                    */
+  72              	/***************************************************/
+  73              	/* r0 contient le code erreur  r1, l'adresse du message */
+  74              	afficheerreur:
+  75 00f8 00482DE9 	    push {fp,lr}                   @ save des  2 registres frame et retour
+  76 00fc 08B08DE2 	    add fp,sp,#8                   @ fp <- adresse d√©but
+  77 0100 1E002DE9 	    push {r1,r2,r3,r4}             @ save autres registres en nombre pair
+  78 0104 0040A0E1 	    mov r4,r0                      @ save du code erreur
+  79 0108 0100A0E1 	    mov r0,r1
+  80 010c FEFFFFEB 	    bl affichageMess
+  81              	                                   @ conversion hexa du code erreur
+  82 0110 3C009FE5 	    ldr r0,=sHexa                  @adresse de stockage du resultat
+  83 0114 0410A0E1 	    mov r1,r4
+  84 0118 1020A0E3 	    mov r2,#16                     @ conversion en base 16
+  85 011c 07002DE9 	    push {r0,r1,r2}                @ parametre de conversion
+  86 0120 FEFFFFEB 	    bl conversion
+  87              	                                   @ conversion decimale
+  88 0124 2C009FE5 	    ldr r0,=sDeci                  @ adresse de stockage du resultat
+  89 0128 0410A0E1 	    mov r1,r4
+  90 012c 0A20A0E3 	    mov r2,#10                     @ conversion en base 10
+  91 0130 07002DE9 	    push {r0,r1,r2}                @ parametres de conversion pass√©s par la pile
+  92 0134 FEFFFFEB 	    bl conversion
+ARM GAS  src/saisie2.s 			page 7
+
+
+  93              	
+  94 0138 1C009FE5 	    ldr r0,=szMessErr              @affichage du message
+  95 013c FEFFFFEB 	    bl affichageMess
+  96              	  
+  97 0140 0400A0E1 	    mov r0,r4                      @ retour du code erreur
+  98              	
+  99              	100:                               @ fin standard de la fonction
+ 100 0144 1E00BDE8 	       pop {r1,r2,r3,r4}           @ restaur des autres registres
+ 101 0148 0048BDE8 	       pop {fp,lr}                 @ restaur des  2 registres frame et retour
+ 102 014c 1EFF2FE1 	    bx lr                          @ retour de la fonction en utilisant lr
+ 102      1E000000 
+ 102      49000000 
+ 102      60000000 
+ 102      36000000 
+ARM GAS  src/saisie2.s 			page 8
+
+
+DEFINED SYMBOLS
+src/constantesARM.inc:2      *ABS*:00000001 EXIT
+src/constantesARM.inc:3      *ABS*:00000003 READ
+src/constantesARM.inc:4      *ABS*:00000004 WRITE
+src/constantesARM.inc:5      *ABS*:00000005 OPEN
+src/constantesARM.inc:6      *ABS*:00000006 CLOSE
+src/constantesARM.inc:7      *ABS*:0000002a PIPE
+src/constantesARM.inc:8      *ABS*:00000036 IOCTL
+src/constantesARM.inc:11     *ABS*:00000000 STDIN
+src/constantesARM.inc:12     *ABS*:00000001 STDOUT
+src/constantesARM.inc:13     *ABS*:00000002 STDERR
+src/constantesARM.inc:16     *ABS*:00000000 O_RDONLY
+src/constantesARM.inc:17     *ABS*:00000001 O_WRONLY
+src/constantesARM.inc:18     *ABS*:00000002 O_RDWR
+src/constantesARM.inc:20     *ABS*:00000200 O_CREAT
+src/constantesARM.inc:21     *ABS*:00000400 O_TRUNC
+src/constantesARM.inc:22     *ABS*:00000800 O_EXCL
+src/constantesARM.inc:23     *ABS*:00101000 O_SYNC
+src/constantesARM.inc:25     *ABS*:00000700 S_IRWXU
+src/constantesARM.inc:27     *ABS*:00000001 PROT_READ
+src/constantesARM.inc:28     *ABS*:00000002 PROT_WRITE
+src/constantesARM.inc:29     *ABS*:00000004 PROT_EXEC
+src/constantesARM.inc:30     *ABS*:00000000 PROT_NONE
+src/constantesARM.inc:32     *ABS*:00000001 MAP_SHARED
+src/constantesARM.inc:33     *ABS*:00000002 MAP_PRIVATE
+src/constantesARM.inc:35     *ABS*:00000010 MAP_FIXED
+src/constantesARM.inc:36     *ABS*:00000000 MAP_FILE
+src/constantesARM.inc:37     *ABS*:00000020 MAP_ANONYMOUS
+src/constantesARM.inc:38     *ABS*:00000020 MAP_ANON
+src/constantesARM.inc:40     *ABS*:00000800 MAP_DENYWRITE
+src/constantesARM.inc:41     *ABS*:00000800 MAP_FOOBAR
+src/constantesARM.inc:43     *ABS*:00000001 MS_ASYNC
+src/constantesARM.inc:44     *ABS*:00000002 MS_SYNC
+src/constantesARM.inc:45     *ABS*:00000004 MS_INVALIDATE
+src/constantesARM.inc:50     *ABS*:00000000 false
+src/constantesARM.inc:51     *ABS*:00000001 true
+src/constantesARM.inc:54     *ABS*:00000002 KeyPressed
+src/constantesARM.inc:55     *ABS*:00000004 ButtonPress
+src/constantesARM.inc:56     *ABS*:00000006 MotionNotify
+src/constantesARM.inc:57     *ABS*:00000007 EnterNotify
+src/constantesARM.inc:58     *ABS*:00000008 LeaveNotify
+src/constantesARM.inc:59     *ABS*:0000000c Expose
+src/constantesARM.inc:60     *ABS*:00000021 ClientMessage
+src/constantesARM.inc:61     *ABS*:00000001 KeyPressMask
+src/constantesARM.inc:62     *ABS*:00000004 ButtonPressMask
+src/constantesARM.inc:63     *ABS*:00000008 ButtonReleaseMask
+src/constantesARM.inc:64     *ABS*:00008000 ExposureMask
+src/constantesARM.inc:65     *ABS*:00020000 StructureNotifyMask
+src/constantesARM.inc:66     *ABS*:00000010 EnterWindowMask
+src/constantesARM.inc:67     *ABS*:00000020 LeaveWindowMask
+src/constantesARM.inc:68     *ABS*:00000016 ConfigureNotify
+src/constantesARM.inc:71     *ABS*:00000004 GCForeground
+src/constantesARM.inc:72     *ABS*:00000008 GCBackground
+src/constantesARM.inc:73     *ABS*:00000010 GCLine_width
+src/constantesARM.inc:74     *ABS*:00000020 GCLine_style
+src/constantesARM.inc:75     *ABS*:00004000 GCFont
+src/constantesARM.inc:77     *ABS*:00000002 CWBackPixel
+ARM GAS  src/saisie2.s 			page 9
+
+
+src/constantesARM.inc:78     *ABS*:00000008 CWBorderPixel
+src/constantesARM.inc:79     *ABS*:00000800 CWEventMask
+src/constantesARM.inc:80     *ABS*:00000001 CWX
+src/constantesARM.inc:81     *ABS*:00000002 CWY
+src/constantesARM.inc:82     *ABS*:00000004 CWWidth
+src/constantesARM.inc:83     *ABS*:00000008 CWHeight
+src/constantesARM.inc:84     *ABS*:00000010 CWBorderWidth
+src/constantesARM.inc:85     *ABS*:00000020 CWSibling
+src/constantesARM.inc:86     *ABS*:00000040 CWStackMode
+src/constantesARM.inc:89     *ABS*:00000001 InputOutput
+src/constantesARM.inc:90     *ABS*:00000002 InputOnly
+src/constantesARM.inc:92     *ABS*:00000001 InputHint
+src/constantesARM.inc:93     *ABS*:00000002 StateHint
+src/constantesARM.inc:94     *ABS*:00000004 IconPixmapHint
+src/constantesARM.inc:95     *ABS*:00000008 IconWindowHint
+src/constantesARM.inc:96     *ABS*:00000010 IconPositionHint
+src/constantesARM.inc:97     *ABS*:00000020 IconMaskHint
+src/constantesARM.inc:98     *ABS*:00000040 WindowGroupHint
+src/constantesARM.inc:99     *ABS*:00000100 UrgencyHint
+src/constantesARM.inc:100    *ABS*:00000000 WithdrawnState
+src/constantesARM.inc:101    *ABS*:00000001 NormalState
+src/constantesARM.inc:102    *ABS*:00000003 IconicState
+src/constantesARM.inc:104    *ABS*:00000001 USPosition
+src/constantesARM.inc:105    *ABS*:00000002 USSize
+src/constantesARM.inc:106    *ABS*:00000004 PPosition
+src/constantesARM.inc:107    *ABS*:00000008 PSize
+src/constantesARM.inc:108    *ABS*:00000010 PMinSize
+src/constantesARM.inc:109    *ABS*:00000020 PMaxSize
+src/constantesARM.inc:110    *ABS*:00000040 PResizeInc
+src/constantesARM.inc:111    *ABS*:00000080 PAspect
+src/constantesARM.inc:112    *ABS*:00000100 PBaseSize
+src/constantesARM.inc:113    *ABS*:00000200 PWinGravity
+src/constantesARM.inc:115    *ABS*:00000100 Button1MotionMask
+src/constantesARM.inc:116    *ABS*:00000200 Button2MotionMask
+src/constantesARM.inc:117    *ABS*:00002000 ButtonMotionMask
+src/constantesARM.inc:119    *ABS*:00000000 CoordModeOrigin
+src/constantesARM.inc:120    *ABS*:00000001 CoordModePrevious
+src/constantesARM.inc:122    *ABS*:00000001 XYPixmap
+src/constantesARM.inc:123    *ABS*:00000002 ZPixmap
+src/constantesARM.inc:126    *ABS*:00000000 Complex
+src/constantesARM.inc:127    *ABS*:00000001 Nonconvex
+src/constantesARM.inc:128    *ABS*:00000002 Convex
+       src/saisie2.s:7      *ABS*:00000064 TAILLEBUF
+       src/saisie2.s:16     .data:00000000 szSaisie
+       src/saisie2.s:17     .data:0000001c szRetourligne
+       src/saisie2.s:18     .data:0000001e szMessErrAppel
+       src/saisie2.s:20     .data:00000036 szMessErr
+       src/saisie2.s:21     .data:00000049 sHexa
+       src/saisie2.s:21     .data:00000049 $d
+       src/saisie2.s:23     .data:00000060 sDeci
+       src/saisie2.s:25     *ABS*:0000003a LGMESSERR
+       src/saisie2.s:30     .bss:00000000 sBuffer
+       src/saisie2.s:30     .bss:00000000 $d
+       src/saisie2.s:38     .text:00000000 main
+       src/saisie2.s:39     .text:00000000 $a
+       src/saisie2.s:41     .text:00000034 lib10
+       src/saisie2.s:41     .text:00000040 smacro1vidregtit0
+ARM GAS  src/saisie2.s 			page 10
+
+
+       src/saisie2.s:41     .text:00000034 $d
+       src/saisie2.s:67     .text:000000f0 adresse_saisie
+       src/saisie2.s:68     .text:000000f4 adresse_buffer
+       src/saisie2.s:52     .text:00000090 lib11
+       src/saisie2.s:52     .text:000000a0 smacro1vidregtit1
+       src/saisie2.s:52     .text:00000090 $d
+       src/saisie2.s:54     .text:000000c4 lib12
+       src/saisie2.s:54     .text:000000d0 smacro1vidregtit2
+       src/saisie2.s:54     .text:000000c4 $d
+       src/saisie2.s:74     .text:000000f8 afficheerreur
+       src/saisie2.s:67     .text:000000f0 $d
+       src/saisie2.s:75     .text:000000f8 $a
+       src/saisie2.s:102    .text:00000150 $d
+       src/saisie2.s:41     .text:0000003a $d
+       src/saisie2.s:41     .text:0000003c $a
+       src/saisie2.s:52     .text:00000097 $d
+       src/saisie2.s:52     .text:00000098 $a
+       src/saisie2.s:54     .text:000000cb $d
+       src/saisie2.s:54     .text:000000cc $a
+
+UNDEFINED SYMBOLS
+affregistres
+affichageMess
+affmemoireTit
+conversion
