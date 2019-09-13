@@ -901,7 +901,15 @@ reponseMontee:              @ montee d'un niveau
     bl creationTerrain
     bl effacerEcran
     bl afficheentete1
-    bl afficheTerrain 
+    ldr r0,iAdritValeur
+    ldr r1,iAdriDirection
+    ldr r1,[r1]
+    ldr r2,iAdriPosXJoueur
+    ldr r2,[r2]               @ pos X
+    ldr r3,iAdriPosYJoueur
+    ldr r3,[r3]               @ pos Y
+    bl dessin3D               @ dessin en 3D 
+    //bl afficheTerrain 
     b 90f
 reponseDescente:            @ descente d'un niveau
     ldr r0,iAdriNiveau
@@ -911,7 +919,15 @@ reponseDescente:            @ descente d'un niveau
     bl creationTerrain
     bl effacerEcran
     bl afficheentete1
-    bl afficheTerrain 
+    ldr r0,iAdritValeur
+    ldr r1,iAdriDirection
+    ldr r1,[r1]
+    ldr r2,iAdriPosXJoueur
+    ldr r2,[r2]               @ pos X
+    ldr r3,iAdriPosYJoueur
+    ldr r3,[r3]               @ pos Y
+    bl dessin3D               @ dessin en 3D 
+    //bl afficheTerrain 
     b 90f
 90:
     ldr r2,iAdriEtatTouches
