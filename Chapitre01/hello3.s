@@ -1,6 +1,6 @@
 /* programme hello  avec l'appel systeme Write de Linux */
 /********************************/
-/*  Données initialisées        */
+/*  DonnÃ©es initialisÃ©es        */
 /********************************/
 .data
 szMessage1: .asciz "Bonjour le Monde.\n"
@@ -9,9 +9,9 @@ szMessage1: .asciz "Bonjour le Monde.\n"
 /*  Code section                */
 /********************************/
 .text    
-.global main                 /* point d'entrée du programme  */
+.global main                 /* point d'entrÃ©e du programme  */
 main:                        /* Programme principal */
-    mov r0,#1                /* code pour écrire sur la sortie standard Linux */
+    mov r0,#1                /* code pour Ã©crire sur la sortie standard Linux */
     ldr r1,=szMessage1       /* adresse du message en r1 */
     mov r2,#LGMESSAGE1       /* longueur du message */
     mov r7, #4               /* code de l'appel systeme 'write' */
