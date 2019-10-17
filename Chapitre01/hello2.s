@@ -1,6 +1,6 @@
 /* programme hello  avec la fonction printf du C */
 /********************************/
-/*  Données initialisées        */
+/*  DonnÃ©es initialisÃ©es        */
 /********************************/
 .data
 szMessage1: .asciz "Bonjour le Monde.\n"
@@ -8,7 +8,7 @@ szMessage1: .asciz "Bonjour le Monde.\n"
 /*  Code section                */
 /********************************/
 .text    
-.global main                  /* point d'entrée du programme  */
+.global main                  /* point d'entrÃ©e du programme  */
 main:                         /* Programme principal */
     ldr r0, =szMessage1       /* adresse du message en r0 */
    
