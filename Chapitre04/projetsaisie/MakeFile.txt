@@ -2,27 +2,27 @@
 #Chemin du compilateur as et du linker ld
 ARMGNU ?= "C:\Program Files (x86)\GNU Tools ARM Embedded\8 2018-q4-major\arm-none-eabi\bin"
 
-# répertoire des sources
+# rÃ©pertoire des sources
 SOURCE = src
 
 # nom de l'executable final (voir le fichier .bat)
 TARGET = $(PGM)
 
-# répertoire des objets crées
+# rÃ©pertoire des objets crÃ©es
 BUILD = build
 
-# noms des objets crées à partir des fichiers sources 
+# noms des objets crÃ©es Ã  partir des fichiers sources 
 OBJECTS = $(patsubst $(SOURCE)/%.s,$(BUILD)/%.o,$(wildcard $(SOURCE)/*.s))
 
-# Régle pour tout traiter
+# RÃ©gle pour tout traiter
 all: $(TARGET)
 
  
-# régle pour linker les objets et créer l'executable
+# rÃ©gle pour linker les objets et crÃ©er l'executable
 $(PGM): scriptLD.ld $(OBJECTS)
 	$(ARMGNU)\ld  -o $(BUILD)/$(PGM) $(OBJECTS) -T scriptLD.ld   --strip-all --print-map >map$(PGM).txt
  
-# régle pour compiler les sources et creer les objets
+# rÃ©gle pour compiler les sources et creer les objets
 $(BUILD)/%.o: $(SOURCE)/%.s
 	$(ARMGNU)\as   $< -o $@   -mcpu=arm1176jzf-s -march=armv6  -mfpu=vfp -mfloat-abi=hard -a >listing.txt
 
