@@ -1,0 +1,14 @@
+R1 :  SI (ordre=3 (quel est l'ordre?)) ALORS Triangle
+R2 :  SI (Triangle ET Angle_Droit (La figure a-t-elle au moins un angle droit ?)) ALORS Triangle_rectangle
+R3 :  SI (Triangle ET Cotes_egaux=2 (Combien la figure a-elle de cotés égaux ?)) ALORS Triangle_isocéle
+R4 :  SI (Triangle_rectangle ET Triangle_isocéle)  ALORS Triangle_rectangle_isocéle 	  
+R5 :  SI (Triangle ET Cotes_egaux=3 (Combien la figure a-elle de cotés égaux ?)) ALORS Triangle_equilatéral
+R6 :  SI (ordre=4 (quel est l'ordre?)) ALORS Quadrilatère
+R7 :  SI (Quadrilatère ET CotèsParallèles=2 (Combien y a t_il de cotès parallèles entre eux - 0, 2 ou 4 ?)) ALORS Trapeze
+R8 :  SI (Quadrilatère ET CotèsParallèles=4 (Combien y a t_il de cotès parallèles entre eux - 0, 2 ou 4 ?)) ALORS Parallélogramme
+R9 :  SI (Parallélogramme ET Angle_Droit (La figure a-t-elle au moins un angle droit ?)) ALORS Rectangle
+R10 :  SI (Parallélogramme ET Cotes_egaux=4 (Combien la figure a-elle de cotés égaux ?)) ALORS Losange
+R11 :  SI (Rectangle ET Losange) ALORS  Carré
+R12 :  SI (Triangle_rectangle ET Cotes_egaux=3 (Combien la figure a-elle de cotés égaux ?)) ALORS Impossible
+R13 :  SI (ordre=5 (quel est l'ordre?)) ALORS Pentagone
+R14 :  SI (Pentagone ET Cotes_egaux=5 (Combien la figure a-elle de cotés égaux ?)) ALORS PentagoneRégulier
