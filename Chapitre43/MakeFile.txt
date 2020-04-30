@@ -1,0 +1,33 @@
+# Makefile
+
+ARMGNU ?= C:\Developpement\Raspberry\outils
+
+# The directory in which source files are stored.
+SOURCE = src
+
+# The name of the output file to generate.
+TARGET = kernel.img
+
+# The intermediate directory for compiled object files.
+BUILD = build
+
+# The names of all object files that must be generated. Deduced from the 
+# assembly code files in source.
+OBJECTS = $(patsubst $(SOURCE)/%.s,$(BUILD)/%.o,$(wildcard $(SOURCE)/*.s))
+
+# Rule to make everything.
+all: $(TARGET)
+
+ 
+# Rule to make the elf file.
+kernel.img: linker.ld $(OBJECTS)
+	$(ARMGNU)\ld  -o $(BUILD)/kernel.elf $(OBJECTS) -T linker.ld  --strip-all --print-map >map1.txt
+	$(ARMGNU)\objcopy $(BUILD)/kernel.elf -O binary kernel.img
+ 
+# Rule to make the object files.
+$(BUILD)/%.o: $(SOURCE)/%.s
+	$(ARMGNU)\as   $< -o $@   -mcpu=arm1176jzf-s -march=armv6 -a >listing.txt
+ 
+
+clean:
+	rm -vf affchaine.o
