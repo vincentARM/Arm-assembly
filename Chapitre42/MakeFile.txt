@@ -1,0 +1,34 @@
+# Makefile pour la création d'une image binaire kernel.img pour le Raspberry
+# répertoire des outils utilisés : as, ld et objcopy
+ARMGNU ?= C:\Developpement\Raspberry\outils
+
+# repértoire des sources assembleurs
+SOURCE = src
+
+# nom du fichier cible (à modifier en kernel7.img ou kernel8.img)
+TARGET = kernel.img
+
+# répertoire de destination des objets après compilation
+BUILD = build
+
+# crée la liste des objets en fonction de la liste des programmes sources (en .s)
+OBJECTS = $(patsubst $(SOURCE)/%.s,$(BUILD)/%.o,$(wildcard $(SOURCE)/*.s))
+
+# Régle de création
+all: $(TARGET)
+
+ 
+# Régle pour creer le fichier elf (appel du linker ld)
+# puis création de l'image binaire finale pour le raspberry par objcopy
+kernel.img: linker.ld $(OBJECTS)
+	$(ARMGNU)\ld  -o $(BUILD)/kernel.elf $(OBJECTS) -T linker.ld  --strip-all --print-map >map1.txt
+	$(ARMGNU)\objcopy $(BUILD)/kernel.elf -O binary kernel.img
+ 
+# Régle pour compiler les sources asselbleur et créer les objets sous build
+# ATTENTION : mettre les options de votre processeur ARM
+$(BUILD)/%.o: $(SOURCE)/%.s
+	$(ARMGNU)\as   $< -o $@   -mcpu=arm1176jzf-s -march=armv6 
+#Pour être complet il faudrait ajouter les régles pour nettoyer un objet (clean)
+#ou pour reconstruire tout le projet
+# et voir aussi la recompilation si les fichiers includes sont modifiés (à étudier).
+ 
