@@ -1,0 +1,31 @@
+# Makefile  avec as et ld  sur le raspberry
+
+ARMGNU ?= 
+
+SRC= $(wildcard *.s)
+OBJ= $(SRC:.s=.o)
+
+# The name of the output file to generate.
+TARGET = rechChemin
+
+# The intermediate directory for compiled object files.
+BUILD = build
+
+# The names of all object files that must be generated. Deduced from the 
+# assembly code files in source.
+#OBJECTS := $(patsubst $(SOURCE)%.s,$(BUILD)%.o,$(wildcard $(SOURCE)*.s))
+
+# Rule to make everything.
+all: $(TARGET)
+
+ 
+# Rule to make the elf file.
+$(TARGET) : $(OBJ)
+	ld -o $@ $+ -e main  --print-map  ~/vincent/asm/routinesARM.o -L/usr/lpp/X11/lib -lX11 -I/lib/ld-linux-armhf.so.3>map2.txt
+ 
+# Rule to make the object files.
+%.o: %.s
+	$(ARMGNU)\as  $< -o $@   
+
+clean:
+	rm -rf *.o
