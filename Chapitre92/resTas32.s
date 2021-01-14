@@ -14,15 +14,15 @@
 .include "../ficmacros.s"
 
 /**************************************/
-/* Données initialisées               */
+/* DonnÃ©es initialisÃ©es               */
 /**************************************/
 .data
-szMessage:      .asciz "Début du programme. \n"       @ message
+szMessage:      .asciz "DÃ©but du programme. \n"       @ message
 
 ptZoneTas:          .int ZoneTas
 ptZoneFinBss:       .int __bss_end__
 /**************************************/
-/* Données non initialisées           */
+/* DonnÃ©es non initialisÃ©es           */
 /**************************************/
 .bss
 .align 4
@@ -58,26 +58,26 @@ main:
                                  @ fin du programme
     mov r0, #0                   @ code retour OK
     mov r7, #1                   @ code fin LINUX 
-    svc 0                        @ appel système LINUX
+    svc 0                        @ appel systÃ¨me LINUX
 
 iAdrszMessage:      .int szMessage
 iAdrptZoneFinBss:   .int ptZoneFinBss
 /***************************************************/
 /*   reserver place sur le tas                              */
 /***************************************************/
-// r0 contient la place à réserver 
-// r0 retourne l'adresse de début de la place réservée
+// r0 contient la place Ã  rÃ©server 
+// r0 retourne l'adresse de dÃ©but de la place rÃ©servÃ©e
 reserverPlace:              @ INFO: reserverPlace
     push {r1,r2,r3,lr}      @ save des registres
     mov r1,r0
     tst r1,#0b11          @ la place est un multiple de 4
     beq 1f                @ oui
-    and r1,#0xFFFFFFFC    @ sinon ajustement à un multiple de 4 superieur
+    and r1,#0xFFFFFFFC    @ sinon ajustement Ã  un multiple de 4 superieur
     add r1,#4
 1:
     ldr r2,iAdrptZoneTas
     ldr r0,[r2]
-    add r1,r1,r0         @  vérification de dépassement
+    add r1,r1,r0         @  vÃ©rification de dÃ©passement
     ldr r3,iAdrFinZoneTas
     cmp r1,r3
     blt 2f
