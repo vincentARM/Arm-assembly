@@ -11,4 +11,5 @@ build/aqua -r nomSauvegarde <br>
 Le log de la session peut être effectué par : <br>
 build/aqua -l nomduLog  <br>
 les 2 paramètres -i et -r sont incompatibles (soit on initialise soit on restaure !!). <br>
-
+Mais il est possible d'initialiser et d'avoir le log sur fichier par : <br>
+build/aqua -i fichierinit.txt  -l nomduLog <br>
