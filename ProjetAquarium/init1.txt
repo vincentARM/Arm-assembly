@@ -1,0 +1,8 @@
+A;5;8
+A;2;10
+P;F1;Femelle;3;8
+P;M2;Male;3;7
+P;F3;Femelle;4;8
+P;M4;Male;4;7
+P;F5;Femelle;5;8
+P;M6;Male;5;7
