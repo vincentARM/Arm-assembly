@@ -4,7 +4,7 @@ Installer les composants sur le raspberry pi.
 
 Créer le répertoire build.
 
-Télécharger et installer la librairie openssl.
+Télécharger et installer la librairie openssl  : sudo apt-get install openssl
 
 Creer l'exécutable par make
 
